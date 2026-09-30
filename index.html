@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>木作設施製作實務班 課表</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#faf8f5;--fg:#2b2620;--mut:#8a8178;--line:#e2dcd3;--card:#fff;--acc:#8a5a2b;--bgl:90%;--tx:#2b2620;--today:#fff3d6}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1c1a17;--fg:#ece6dc;--mut:#9a9186;--line:#3a352f;--card:#26231f;--acc:#e0a565;--bgl:26%;--tx:#f2ece2;--today:#3b3120}}
+:root[data-theme="dark"]{--bg:#1c1a17;--fg:#ece6dc;--mut:#9a9186;--line:#3a352f;--card:#26231f;--acc:#e0a565;--bgl:26%;--tx:#f2ece2;--today:#3b3120}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:-apple-system,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;padding:12px 8px 24px;max-width:900px;margin-inline:auto}
+h1{font-size:17px;margin:4px 4px 2px}
+.sub{font-size:12px;color:var(--mut);margin:0 4px 10px}
+.nav{display:flex;align-items:center;gap:8px;margin:0 0 8px}
+.nav button{border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:10px;padding:8px 14px;font-size:14px}
+.nav button:disabled{opacity:.35}
+.nav .t{flex:1;text-align:center;font-weight:600;font-size:15px}
+.nav .t small{display:block;font-weight:400;color:var(--mut);font-size:11px}
+.tabs{display:flex;gap:6px;margin:0 0 8px;overflow-x:auto}.tabs button{border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:16px;padding:6px 14px;font-size:14px;white-space:nowrap}.tabs button.on{background:var(--acc);color:var(--card);border-color:var(--acc)}
+.dots{display:flex;justify-content:center;gap:6px;margin:0 0 8px}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line);cursor:pointer}
+.dots i.on{background:var(--acc)}
+.g{display:grid;grid-template-columns:34px repeat(5,minmax(0,1fr));grid-template-rows:38px repeat(8,minmax(60px,auto));gap:2px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:3px;touch-action:pan-y}
+.h{display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;font-weight:600;border-radius:6px}
+.h small{font-weight:400;color:var(--mut);font-size:10px}
+.h.today{background:var(--today);color:var(--acc)}
+.tm{font-size:9px;color:var(--mut);text-align:center;line-height:1.25;padding-top:4px}
+.tm b{display:block;font-size:12px;color:var(--fg)}
+.c{border-radius:6px;padding:4px 3px;overflow:hidden;background:hsl(var(--h) 55% var(--bgl));color:var(--tx);border-left:3px solid hsl(var(--h) 55% 50%);display:flex;flex-direction:column;gap:2px;justify-content:center;text-align:center;border-left-width:3px}
+.c b{font-size:12px;line-height:1.25}
+.c span{font-size:10px;opacity:.8;line-height:1.2}
+.off{background:repeating-linear-gradient(45deg,transparent 0 6px,var(--line) 6px 7px);color:var(--mut);font-size:11px;display:flex;align-items:center;justify-content:center;border-radius:6px;writing-mode:vertical-rl;letter-spacing:4px}
+.lg{display:flex;flex-wrap:wrap;gap:6px 10px;margin:12px 4px 0;font-size:11px;color:var(--mut)}
+.lg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px;background:hsl(var(--h) 55% 55%)}
+.note{font-size:11px;color:var(--mut);margin:10px 4px 0}
+@media (min-width:600px){.c b{font-size:14px}.c span{font-size:12px}.tm{font-size:10px}}
+</style>
+</head>
+<body>
+<h1>木作設施製作實務班（臺中）第1期</h1>
+<p class="sub">勞動力發展署中彰投分署・自辦職前訓練・課表 115/09/07 ~ 116/03/11</p>
+<div class="tabs" id="tabs"></div>
+<div class="nav"><button id="pv">‹ 上週</button><div class="t" id="tt"></div><button id="nx">下週 ›</button></div>
+<div class="dots" id="dots"></div>
+<div class="g" id="g"></div>
+<div class="lg" id="lg"></div>
+<p class="note">左右滑動可翻週，上方可切換月份。斜線格為課表上無排課的日期。</p>
+<script>
+var T=["08:30","09:20","10:20","11:10","13:00","13:50","14:50","15:40"];
+var HUE={"基礎木工":30,"識圖與製圖":210,"木作設施設計與施工法":270,"木工機具實習":140,"木作材料與構造":10,"木作設施工程實務":335,"電腦繪圖應用實習":190,"班會聯課":55};
+var W="木工實習場",F4="F3-04";
+function b(s,e,n,r,t){return{s:s,e:e,n:n,r:r,t:t}}
+var full=function(n,r,t){return[b(1,8,n,r,t)]};
+/* 新增月份：在下面 D 裡加入該月每天的課，月份分頁會自動出現 */
+var D={
+"10/1":full("基礎木工",W,"蔡浩章"),
+"10/2":[b(1,4,"識圖與製圖","F3-07","張慧珍"),b(5,8,"木作設施設計與施工法",F4,"陳春木")],
+"10/5":[b(1,6,"基礎木工",W,"蔡浩章"),b(7,8,"班會聯課",F4,"蔡浩章")],
+"10/6":[b(1,6,"基礎木工",W,"蔡浩章"),b(7,8,"木工機具實習",W,"蔡浩章")],
+"10/7":[b(1,4,"木作材料與構造",F4,"陳永尉"),b(5,8,"木工機具實習",W,"陳永尉")],
+"10/8":[b(1,4,"木作設施工程實務",F4,"曾文賢"),b(5,8,"木作設施工程實務",W,"洪孟新")],
+"10/12":full("電腦繪圖應用實習","F3-01","陳柏宏"),
+"10/13":full("木工機具實習",W,"蔡浩章"),
+"10/14":full("木工機具實習",W,"蔡浩章"),
+"10/15":full("木工機具實習",W,"蔡浩章"),
+"10/16":[b(1,4,"識圖與製圖","F3-07","張慧珍"),b(5,8,"木作設施設計與施工法",F4,"陳春木")],
+"10/19":full("木工機具實習",W,"蔡浩章"),
+"10/20":full("木工機具實習",W,"蔡浩章"),
+"10/21":[b(1,2,"木工機具實習",W,"蔡浩章"),b(3,4,"木作材料與構造",F4,"蔡浩章"),b(5,8,"木作材料與構造",F4,"陳永尉")],
+"10/22":full("木工機具實習",W,"蔡浩章"),
+"10/23":[b(1,4,"識圖與製圖","F3-07","張慧珍"),b(5,8,"木作材料與構造",F4,"陳永尉")],
+"10/27":full("木工機具實習",W,"蔡浩章"),
+"10/28":full("木工機具實習",W,"蔡浩章"),
+"10/29":[b(1,4,"木工機具實習",W,"蔡浩章"),b(5,8,"電腦繪圖應用實習","F3-01","陳柏宏")],
+"10/30":full("木作設施工程實務","木工場","陳永尉")
+};
+var DOW=["一","二","三","四","五"];
+var now=new Date(),g=document.getElementById("g");
+function yr(m){return m>=8?2026:2027}
+function key(d){return(d.getMonth()+1)+"/"+d.getDate()}
+function ord(m){return m>=8?m:m+12}
+var months=[];Object.keys(D).forEach(function(k){var m=+k.split("/")[0];if(months.indexOf(m)<0)months.push(m)});
+months.sort(function(a,b){return ord(a)-ord(b)});
+function weeksOf(m){var seen={},r=[];Object.keys(D).forEach(function(k){var p=k.split("/");if(+p[0]!=m)return;
+ var d=new Date(yr(m),m-1,+p[1]);d.setDate(d.getDate()-((d.getDay()+6)%7));var t=d.getTime();if(!seen[t]){seen[t]=1;r.push(d)}});
+ return r.sort(function(a,b){return a-b})}
+var mon=months.indexOf(now.getMonth()+1)>=0?now.getMonth()+1:months[0];
+var starts=weeksOf(mon),cur=0;
+function pickWeek(){cur=0;for(var i=0;i<starts.length;i++){var e=new Date(starts[i]);e.setDate(e.getDate()+7);if(now>=starts[i]&&now<e)cur=i}}
+pickWeek();
+function render(){
+ var h='<div></div>',s=starts[cur];
+ for(var i=0;i<5;i++){var d=new Date(s);d.setDate(d.getDate()+i);
+  var td=d.toDateString()===now.toDateString();
+  h+='<div class="h'+(td?' today':'')+'" style="grid-column:'+(i+2)+';grid-row:1">週'+DOW[i]+'<small>'+key(d)+'</small></div>'}
+ for(var p=0;p<8;p++)h+='<div class="tm" style="grid-column:1;grid-row:'+(p+2)+(p==4?';border-top:1px dashed var(--line)':'')+'"><b>'+(p+1)+'</b>'+T[p]+'</div>';
+ for(i=0;i<5;i++){d=new Date(s);d.setDate(d.getDate()+i);var bl=D[key(d)];
+  if(!bl){h+='<div class="off" style="grid-column:'+(i+2)+';grid-row:2/10">無排課</div>';continue}
+  bl.forEach(function(x){h+='<div class="c" style="--h:'+HUE[x.n]+';grid-column:'+(i+2)+';grid-row:'+(x.s+1)+'/'+(x.e+2)+'"><b>'+x.n+'</b><span>'+x.r+'</span><span>'+x.t+'</span></div>'})}
+ g.innerHTML=h;
+ var e=new Date(s);e.setDate(e.getDate()+4);
+ document.getElementById("tt").innerHTML=mon+'月 第 '+(cur+1)+' 週<small>'+key(s)+' – '+key(e)+'</small>';
+ document.getElementById("pv").disabled=cur==0;document.getElementById("nx").disabled=cur==starts.length-1;
+ var dh='';for(i=0;i<starts.length;i++)dh+='<i class="'+(i==cur?'on':'')+'" data-i="'+i+'"></i>';
+ document.getElementById("dots").innerHTML=dh;
+ var th='';months.forEach(function(m){th+='<button class="'+(m==mon?'on':'')+'" data-m="'+m+'">'+m+'月</button>'});
+ document.getElementById("tabs").innerHTML=months.length>1?th:'';
+}
+function go(n){if(n>=0&&n<starts.length){cur=n;render()}}
+document.getElementById("pv").onclick=function(){go(cur-1)};
+document.getElementById("nx").onclick=function(){go(cur+1)};
+document.getElementById("dots").onclick=function(e){if(e.target.dataset.i)go(+e.target.dataset.i)};
+document.getElementById("tabs").onclick=function(e){var m=e.target.dataset.m;if(m){mon=+m;starts=weeksOf(mon);pickWeek();render()}};
+var x0=null,y0=null;
+g.addEventListener("touchstart",function(e){x0=e.touches[0].clientX;y0=e.touches[0].clientY},{passive:true});
+g.addEventListener("touchend",function(e){if(x0===null)return;var dx=e.changedTouches[0].clientX-x0,dy=e.changedTouches[0].clientY-y0;
+ if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.5)go(cur+(dx<0?1:-1));x0=null},{passive:true});
+document.addEventListener("keydown",function(e){if(e.key=="ArrowLeft")go(cur-1);if(e.key=="ArrowRight")go(cur+1)});
+var lg="";Object.keys(HUE).forEach(function(k){lg+='<span><i style="--h:'+HUE[k]+'"></i>'+k+'</span>'});
+document.getElementById("lg").innerHTML=lg;
+render();
+</script>
+</body>
+</html>
